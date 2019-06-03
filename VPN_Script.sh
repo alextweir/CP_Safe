@@ -414,6 +414,42 @@ function secureXL_start {
 	echo "Debug environment is ready, please reproduce the problem."
 }
 
+#################################
+## Kernel Debug Extended Start ##
+#################################
+function Kernel_Extended_Start {
+    print "PLEASE NOTE: This debug is VERY resource intensive and needs to be run during a maintenance window as well as having someone on site with access to the device in the event that it becomes non-responsive and must be unplugged in order to cause a proper Fail-Over or recover the device."
+    print "Please enter password to continue: "
+
+
+    echo "Debug is initializing, please wait ...." >&4
+
+accel_status=$(fwaccel stat | grep "Accelerator Status" | awk 'BEGIN { FS = ":" } ; { print $2 }')
+
+if [ $accel_status == "on" ]; then echo -e "\\nWARNING - We have detected that Secure XL is currently enabled on the system.\\nThis script was designed to run when SXL is disabled.\\nRunning this script with enabled SXL can result in gathering partial data only,\\nplease consider stopping the script and running it again when SXL is disabled.\\nTo stop SXL run \"fwaccel off\".\\nOtherwise please explain why do you need to have it enabled to TAC person you\\nare working with.\\n\\n" >&4; fwaccel stat > $DBGDIR/fwaccel_stat.txt; fi
+
+fw monitor -e "accept;" -o $DBGDIR/mon.pcap &
+
+fw ctl debug 0 
+fw ctl debug -buf 32000
+fw ctl debug -m fw + ld conn drop packet route xlate xltrc nat
+fw ctl debug -m fw + cptls crypt
+fw ctl debug -m VPN all
+fw ctl kdebug -T -f > $DBGDIR/kern.ctl & 
+
+vpn_log_number=$(/bin/log_start list | grep vpnd.elg | awk 'BEGIN { FS = ")" } ; { print $1 }')
+echo > $DBGDIR/unlimit
+/bin/log_start list | grep vpn | awk -v y="$vpn_log_number" '{ print "/bin/log_start limit " y " " $3 " " $4 }' > $DBGDIR/unlimit
+chmod 777 $DBGDIR/unlimit
+/bin/log_start unlimit $vpn_log_number
+
+rm $FWDIR/log/vpnd.elg.*
+vpn debug trunc
+vpn debug on TDERROR_ALL_ALL=5
+
+echo "Debug environment is ready, please reproduce the problem." >&4
+}
+
 ######################################################
 ## FW Monitor || Ike || VPND || Packet Captures End ##
 ######################################################
@@ -659,7 +695,8 @@ do
 	echo "4. Mobile Access Debug (CVPND Debug)"
 	echo "5. SNX Debug (CVPND & VPND Debug)"
 	echo "6. SecureXL VPN Debug"
-	echo "7. Quit"
+	echo "7. Extended Kernel Debug"
+    echo "8. Exit"
 	read answer
 
 	case "$answer" in
@@ -688,9 +725,13 @@ do
 		x=6
 		;;
 		7)
-		echo "Exiting"
+		echo "You chose Extended Kernel Debug"
 		x=7
 		;;
+        8)
+        echo "Exiting"
+        x=8
+        ;;
 		*)
 		clear
 		echo "That is not an option."
@@ -812,8 +853,27 @@ elif [[ "$x" == "6" ]]; then
     secureXL_stop
     zip_and_clean_SecureXL
     SFTP_Upload
-        
 elif [[ "$x" == "7" ]]; then
+	clear
+    check_OS_for_buffer
+	    if [[ $whatami == *"Gaia"* ]]; then
+    	    echo "OS Name: $whatami"
+    	fi
+    ask_for_ips
+    get_interface_names
+    check_securexl
+	    if [[ $yesno_securexl == 1 ]]; then
+    	    echo "SecureXL is enabled. Please manually disable SecureXL and then restart script."
+        	exit 1
+    	fi
+    bg_info_gathering
+    Kernel_Extended_Start
+    fw_pcaps
+    fw_kern_stop
+    zip_and_clean_Kernel
+    SFTP_Upload
+
+elif [[ "$x" == "8" ]]; then
 	clear
     exit 1
 fi
