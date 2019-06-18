@@ -9,16 +9,16 @@
 #################################
 function check_OS_for_buffer {
 	whatami=$(cpstat os | grep 'OS Name' | awk '{print $3, $4}' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-if [[ $whatami == "Gaia" ]]; then
-    debug_buffer=32000
-    debug_directory=/var/log/tmp/debug
-    logfile=$debug_directory/logs.txt
-elif [[ $whatami == "Gaia Embedded" ]]; then
-    debug_buffer=15000
-    printf "Please enter a directory: "
-    read debug_directory
-    logfile=$debug_directory/logs.txt
-fi
+	if [[ $whatami == "Gaia" ]]; then
+    	debug_buffer=32000
+    	debug_directory=/var/log/tmp/debug
+    	logfile=$debug_directory/logs.txt
+	elif [[ $whatami == "Gaia Embedded" ]]; then
+    	debug_buffer=15000
+    	printf "Please enter a directory: "
+    	read debug_directory
+    	logfile=$debug_directory/logs.txt
+	fi
 }
 
 ####################
@@ -202,114 +202,115 @@ function fw_kern_UP_start {
 ## Mobile Trace Log ##
 ######################
 function Mobile_Trace_Log {
-echo "Debug is initializing, please wait ...."
+	echo "Debug is initializing, please wait ...."
 
-cp $CVPNDIR/conf/httpd.conf $debug_directory/httpd.conf_old
+	cp $CVPNDIR/conf/httpd.conf $debug_directory/httpd.conf_old
 
-version=$(cat /etc/cp-release | sed -r "s/.*R([0-9]*).*/\1/")
-sub_version=$(cat /etc/cp-release | sed -r "s/.*\.([0-9]*).*/\1/")
+	version=$(cat /etc/cp-release | sed -r "s/.*R([0-9]*).*/\1/")
+	sub_version=$(cat /etc/cp-release | sed -r "s/.*\.([0-9]*).*/\1/")
 
-if [ "$version" -ge 77 -a "$sub_version" -ge 10 ]; then
-    sed -e "s/ERROR/DEBUG/" $CVPNDIR/phpincs/conf/log4php.properties -s > $debug_directory/log4php.properties_new
-    echo > $CVPNDIR/log/trace_log/SSLVPNPortalLog.log
-    cp $CVPNDIR/phpincs/conf/log4php.properties $debug_directory/log4php.properties_old
-    cp $debug_directory/log4php.properties_new $CVPNDIR/phpincs/conf/log4php.properties
+	if [ "$version" -ge 77 -a "$sub_version" -ge 10 ]; then
+	    sed -e "s/ERROR/DEBUG/" $CVPNDIR/phpincs/conf/log4php.properties -s > $debug_directory/log4php.properties_new
+	    echo > $CVPNDIR/log/trace_log/SSLVPNPortalLog.log
+	    cp $CVPNDIR/phpincs/conf/log4php.properties $debug_directory/log4php.properties_old
+	    cp $debug_directory/log4php.properties_new $CVPNDIR/phpincs/conf/log4php.properties
 
-elif [ "$version" -ge 77 ]; then
-    sed -e 's/^ *LogLevel .*/LogLevel debug/' -e 's/^ *CvpnTraceApache .*/CvpnTraceApache On/'  $CVPNDIR/conf/httpd.conf -s > $debug_directory/httpd.conf_new
-    if [ "$1" = "all" ] || [ "$1" = "any" ]; then
-        cvpnd_admin debug trace on
-    else
-        cvpnd_admin debug trace users=$1
-    fi
+	elif [ "$version" -ge 77 ]; then
+	    sed -e 's/^ *LogLevel .*/LogLevel debug/' -e 's/^ *CvpnTraceApache .*/CvpnTraceApache On/'  $CVPNDIR/conf/httpd.conf -s > $debug_directory/httpd.conf_new
+    	if [ "$1" = "all" ] || [ "$1" = "any" ]; then
+    	    cvpnd_admin debug trace on
+    	else
+        	cvpnd_admin debug trace users=$1
+    	fi
 
-elif [ "$version" -ge 76 ]; then
-    sed -e 's/^ *LogLevel .*/LogLevel debug/'  $CVPNDIR/conf/httpd.conf -s > $debug_directory/httpd.conf_new
-    if [ "$1" = "all" ] || [ "$1" = "any" ]; then
-        cvpnd_admin debug trace on
-    else
-        cvpnd_admin debug trace users=$1
-    fi
+	elif [ "$version" -ge 76 ]; then
+	    sed -e 's/^ *LogLevel .*/LogLevel debug/'  $CVPNDIR/conf/httpd.conf -s > $debug_directory/httpd.conf_new
+	    if [ "$1" = "all" ] || [ "$1" = "any" ]; then
+	        cvpnd_admin debug trace on
+	    else
+	        cvpnd_admin debug trace users=$1
+	    fi
 
-elif [ "$version" -ge 75 -a "$sub_version" -ge 40 ]; then
-        sed -e 's/^ *LogLevel .*/LogLevel debug/'  $CVPNDIR/conf/httpd.conf -s > $debug_directory/httpd.conf_new
-        if [ "$1" = "all" ] || [ "$1" = "any" ]; then
-            cvpnd_admin debug trace on
-        else
-            cvpnd_admin debug trace users=$1
-        fi
-elif [ "$version" -ge 71 ]; then
-        sed -e 's/^ *LogLevel .*/LogLevel debug/' -e 's/^ *# *LoadModule trace_logger /LoadModule trace_logger /'  $CVPNDIR/conf/httpd.conf -s > $debug_directory/httpd.conf_new
-    else
-        sed -e 's/^ *LogLevel .*/LogLevel debug/' -e 's/^ *# *LoadModule trace_logger /LoadModule trace_logger /' -e 's/^ *# *CvpnTraceLogDir /CvpnTraceLogDir/' -e 's/^ *# *CvpnTraceLogMaxByte .*/CvpnTraceLogMaxByte 10000000/' $CVPNDIR/conf/httpd.conf -s > $DBGDIR/httpd.conf_new
-fi
+	elif [ "$version" -ge 75 -a "$sub_version" -ge 40 ]; then
+    	    sed -e 's/^ *LogLevel .*/LogLevel debug/'  $CVPNDIR/conf/httpd.conf -s > $debug_directory/httpd.conf_new
+        	if [ "$1" = "all" ] || [ "$1" = "any" ]; then
+            	cvpnd_admin debug trace on
+        	else
+        	    cvpnd_admin debug trace users=$1
+        	fi
+	elif [ "$version" -ge 71 ]; then
+	        sed -e 's/^ *LogLevel .*/LogLevel debug/' -e 's/^ *# *LoadModule trace_logger /LoadModule trace_logger /'  $CVPNDIR/conf/httpd.conf -s > $debug_directory/httpd.conf_new
+	    else
+	        sed -e 's/^ *LogLevel .*/LogLevel debug/' -e 's/^ *# *LoadModule trace_logger /LoadModule trace_logger /' -e 's/^ *# *CvpnTraceLogDir /CvpnTraceLogDir/' -e 's/^ *# *CvpnTraceLogMaxByte .*/CvpnTraceLogMaxByte 10000000/' $CVPNDIR/conf/httpd.conf -s > $DBGDIR/httpd.conf_new
+	fi
 
-userID=""
-printf "Please enter the User ID we will be testing with: "
-read userID
-echo $userID > $logfile
+	userID=""
+	printf "Please enter the User ID we will be testing with: "
+	read userID
+	echo $userID > $logfile
 
-find $CVPNDIR/log/trace_log -type f -name '*' -exec rm {} \;
-cp $debug_directory/httpd.conf_new $CVPNDIR/conf/httpd.conf
-rm $CVPNDIR/log/httpd.log*
-echo > $CVPNDIR/log/httpd.log
+	find $CVPNDIR/log/trace_log -type f -name '*' -exec rm {} \;
+	cp $debug_directory/httpd.conf_new $CVPNDIR/conf/httpd.conf
+	rm $CVPNDIR/log/httpd.log*
+	echo > $CVPNDIR/log/httpd.log
 
-trunc_succ_msg="Log file was trunctuated"
-trunc_res=$(cvpnd_admin debug trunc)
-#======================================================
-# fallback for versions that don't support trunc
-#======================================================
-if [ "$trunc_res" != "$trunc_succ_msg" ]; then
+	trunc_succ_msg="Log file was trunctuated"
+	trunc_res=$(cvpnd_admin debug trunc)
+
+	#======================================================#
+	# fallback for versions that don't support trunc       #
+	#======================================================#
+	if [ "$trunc_res" != "$trunc_succ_msg" ]; then
     echo > $CVPNDIR/log/cvpnd.elg
-fi
+	fi
 
-rm $CVPNDIR/log/cvpnd.elg*
-echo > $CVPNDIR/log/cvpnd.elg
-cvpnd_admin debug set TDERROR_ALL_ALL=5
-cvpnd_admin policy
-echo "Debug environment is ready, please reproduce the problem."
+	rm $CVPNDIR/log/cvpnd.elg*
+	echo > $CVPNDIR/log/cvpnd.elg
+	cvpnd_admin debug set TDERROR_ALL_ALL=5
+	cvpnd_admin policy
+	echo "Debug environment is ready, please reproduce the problem."
 }
 
 #####################
 ## SNX Debug Start ##
 #####################
 function SNX_start {
-echo "Debug is initializing, please wait ...."
+	echo "Debug is initializing, please wait ...."
 
-userID=""
-printf "Please enter the User ID we will be testing with: "
-read userID
-echo $userID > $logfile
+	userID=""
+	printf "Please enter the User ID we will be testing with: "
+	read userID
+	echo $userID > $logfile
 
-echo > $debug_directory/kernel_debug.log
-fw ctl debug 0 
-fw ctl debug -buf 32000
-fw ctl debug -m fw + conn drop nat xlate xltrc
-fw ctl debug -m fw + cptls crypt
-fw ctl debug -m VPN all
-fw ctl kdebug -T -f > $debug_directory/kernel_debug.log &
+	echo > $debug_directory/kernel_debug.log
+	fw ctl debug 0 
+	fw ctl debug -buf 32000
+	fw ctl debug -m fw + conn drop nat xlate xltrc
+	fw ctl debug -m fw + cptls crypt
+	fw ctl debug -m VPN all
+	fw ctl kdebug -T -f > $debug_directory/kernel_debug.log &
 
-vpn_log_number=$(/bin/log_start list | grep vpnd.elg | awk 'BEGIN { FS = ")" }; { print $1 }')
-echo > $debug_directory/unlimit
-/bin/log_start list | grep vpn | awk -v y="$vpn_log_number" '{ print "/bin/log_start limit " y " " $3 " " $4 }' > $debug_directory/unlimit
-chmod 777 $debug_directory/unlimit
-/bin/log_start log unlimit $vpn_log_number
+	vpn_log_number=$(/bin/log_start list | grep vpnd.elg | awk 'BEGIN { FS = ")" }; { print $1 }')
+	echo > $debug_directory/unlimit
+	/bin/log_start list | grep vpn | awk -v y="$vpn_log_number" '{ print "/bin/log_start limit " y " " $3 " " $4 }' > $debug_directory/unlimit
+	chmod 777 $debug_directory/unlimit
+	/bin/log_start log unlimit $vpn_log_number
 
-vpn debug trunc
-rm $FWDIR/log/vpnd.elg*
-vpn debug on TDERROR_ALL_ALL=5
+	vpn debug trunc
+	rm $FWDIR/log/vpnd.elg*
+	vpn debug on TDERROR_ALL_ALL=5
 
-rm $CVPNDIR/log/cvpnd.elg*
-echo > $CVPNDIR/log/cvpnd.elg
-cvpnd_admin debug set TDERROR_ALL_ALL=5
+	rm $CVPNDIR/log/cvpnd.elg*
+	echo > $CVPNDIR/log/cvpnd.elg
+	cvpnd_admin debug set TDERROR_ALL_ALL=5
 
-cp $CVPNDIR/conf/httpd.conf $debug_directory/httpd.conf_old
-sed -e 's/^ *LogLevel .*/LogLevel debug/' $CVPNDIR/conf/httpd.conf -s > $debug_directory/httpd.conf_new
-cp $debug_directory/httpd.conf_new $CVPNDIR/conf/httpd.conf
-rm $CVPNDIR/log/httpd.log*
-echo > $CVPNDIR/log/httpd.log
-cvpnd_admin policy
-echo "Debug environment is ready, please reproduce the problem."
+	cp $CVPNDIR/conf/httpd.conf $debug_directory/httpd.conf_old
+	sed -e 's/^ *LogLevel .*/LogLevel debug/' $CVPNDIR/conf/httpd.conf -s > $debug_directory/httpd.conf_new
+	cp $debug_directory/httpd.conf_new $CVPNDIR/conf/httpd.conf
+	rm $CVPNDIR/log/httpd.log*
+	echo > $CVPNDIR/log/httpd.log
+	cvpnd_admin policy
+	echo "Debug environment is ready, please reproduce the problem."
 }
 
 #################
@@ -392,7 +393,7 @@ function secureXL_start {
 	fw ctl debug 0 
 	fw ctl debug -buf 32000
 	fw ctl debug -m fw + conn drop 
-	fw ctl debug -m VPN all
+	fw ctl debug -m all
 	sim dbg -m pkt all
 	sim dbg -m vpn all
 	sim dbg -m drv all
@@ -424,30 +425,30 @@ function Kernel_Extended_Start {
 
     echo "Debug is initializing, please wait ...." >&4
 
-accel_status=$(fwaccel stat | grep "Accelerator Status" | awk 'BEGIN { FS = ":" } ; { print $2 }')
+	accel_status=$(fwaccel stat | grep "Accelerator Status" | awk 'BEGIN { FS = ":" } ; { print $2 }')
 
-if [ $accel_status == "on" ]; then echo -e "\\nWARNING - We have detected that Secure XL is currently enabled on the system.\\nThis script was designed to run when SXL is disabled.\\nRunning this script with enabled SXL can result in gathering partial data only,\\nplease consider stopping the script and running it again when SXL is disabled.\\nTo stop SXL run \"fwaccel off\".\\nOtherwise please explain why do you need to have it enabled to TAC person you\\nare working with.\\n\\n" >&4; fwaccel stat > $DBGDIR/fwaccel_stat.txt; fi
+	if [ $accel_status == "on" ]; then echo -e "\\nWARNING - We have detected that Secure XL is currently enabled on the system.\\nThis script was designed to run when SXL is disabled.\\nRunning this script with enabled SXL can result in gathering partial data only,\\nplease consider stopping the script and running it again when SXL is disabled.\\nTo stop SXL run \"fwaccel off\".\\nOtherwise please explain why do you need to have it enabled to TAC person you\\nare working with.\\n\\n" >&4; fwaccel stat > $DBGDIR/fwaccel_stat.txt; fi
 
-fw monitor -e "accept;" -o $DBGDIR/mon.pcap &
+	fw monitor -e "accept;" -o $DBGDIR/mon.pcap &
 
-fw ctl debug 0 
-fw ctl debug -buf 32000
-fw ctl debug -m fw + ld conn drop packet route xlate xltrc nat
-fw ctl debug -m fw + cptls crypt
-fw ctl debug -m VPN all
-fw ctl kdebug -T -f > $DBGDIR/kern.ctl & 
+	fw ctl debug 0 
+	fw ctl debug -buf 32000
+	fw ctl debug -m fw + ld conn drop packet route xlate xltrc nat
+	fw ctl debug -m fw + cptls crypt
+	fw ctl debug -m VPN all
+	fw ctl kdebug -T -f > $DBGDIR/kern.ctl & 
 
-vpn_log_number=$(/bin/log_start list | grep vpnd.elg | awk 'BEGIN { FS = ")" } ; { print $1 }')
-echo > $DBGDIR/unlimit
-/bin/log_start list | grep vpn | awk -v y="$vpn_log_number" '{ print "/bin/log_start limit " y " " $3 " " $4 }' > $DBGDIR/unlimit
-chmod 777 $DBGDIR/unlimit
-/bin/log_start unlimit $vpn_log_number
+	vpn_log_number=$(/bin/log_start list | grep vpnd.elg | awk 'BEGIN { FS = ")" } ; { print $1 }')
+	echo > $DBGDIR/unlimit
+	/bin/log_start list | grep vpn | awk -v y="$vpn_log_number" '{ print "/bin/log_start limit " y " " $3 " " $4 }' > $DBGDIR/unlimit
+	chmod 777 $DBGDIR/unlimit
+	/bin/log_start unlimit $vpn_log_number
 
-rm $FWDIR/log/vpnd.elg.*
-vpn debug trunc
-vpn debug on TDERROR_ALL_ALL=5
+	rm $FWDIR/log/vpnd.elg.*
+	vpn debug trunc
+	vpn debug on TDERROR_ALL_ALL=5
 
-echo "Debug environment is ready, please reproduce the problem." >&4
+	echo "Debug environment is ready, please reproduce the problem." >&4
 }
 
 ######################################################
@@ -578,9 +579,9 @@ function secureXL_stop {
 	$debug_directory/unlimit
 }
 
-#######################################################################
-## Archive & Cleanup Light Kernel & Light Kernel with Unified Policy ##
-#######################################################################
+#############################
+## Archive & Cleanup Basic ##
+#############################
 function zip_and_clean_Basic {
     date="%Y-%m-%d"
     cd $debug_directory/
@@ -593,7 +594,7 @@ function zip_and_clean_Basic {
         # Real Gaia
         rm fw_mon.pcap tcpdump-* logs.txt ike.elg* ikev2.xmll* vpnd.elg* zdebug.txt
     fi
-    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_archive.tgz" to Check Point support for review."
+    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_Basic_archive.tgz" to Check Point support for review."
 }
 
 #######################################################################
@@ -610,7 +611,7 @@ function zip_and_clean_Kernel {
         # Real Gaia
         rm fw_mon.pcap tcpdump-* logs.txt ike.elg* ikev2.xmll* vpnd.elg* kern.ctl
     fi
-    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_archive.tgz" to Check Point support for review."
+    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_Kernel_archive.tgz" to Check Point support for review."
 }
 
 ########################################
@@ -621,18 +622,18 @@ function zip_and_clean_Mobile_Trace {
     echo "Zipping up files:"
     tar zcvf "$(date '+%F'_'%H-%M-%S')_Mobile_archive.tgz" *
     rm fw_mon.pcap tcpdump-* logs.txt cvpnd.elg* httpd.starlog* httpd.log log4php.properties_old httpd.conf_old log4php.properties_new httpd.conf_new zdebug.txt
-    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_archive.tgz" to Check Point support for review."
+    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_Mobile_archive.tgz" to Check Point support for review."
 }
 
-########################################
-## Archive & Cleanup Mobile Trace Log ##
-########################################
+###############################
+## Archive & Cleanup SNX Log ##
+###############################
 function zip_and_clean_SNX {
     cd $debug_directory/
     echo "Zipping up files:"
     tar zcvf "$(date '+%F'_'%H-%M-%S')_SNX_archive.tgz" *
     rm fw_mon.pcap tcpdump-* logs.txt cvpnd.elg* httpd.log httpd.conf_old httpd.conf_new zdebug.txt
-    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_archive.tgz" to Check Point support for review."
+    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_SNX_archive.tgz" to Check Point support for review."
 }
 
 ######################################
@@ -643,8 +644,9 @@ function zip_and_clean_SecureXL {
     echo "Zipping up files:"
     tar zcvf "$(date '+%F'_'%H-%M-%S')_SXL_archive.tgz" *
     rm fw_mon.pcap tcpdump-* logs.txt ike.elg* ikev2.xmll* vpnd.elg* kern.ctl
-    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_archive.tgz" to Check Point support for review."
+    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_SXL_archive.tgz" to Check Point support for review."
 }
+
 ##########################
 ## SFTP Upload & Delete ##
 ##########################

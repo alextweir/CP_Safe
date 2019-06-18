@@ -136,7 +136,7 @@ function get_interface_names {
 ##  WSTLSD Debug Start  ##
 ##########################
 function WSTLSD_Start {
-	for PROC in $(pidof wstlsd) ; do fw debug $PROC on TDERROR_ALL_ALL=6 ; done
+    for PROC in $(pidof wstlsd) ; do fw debug $PROC on TDERROR_ALL_ALL=6 ; done
 }
 
 #################
@@ -238,9 +238,9 @@ function IA_Stop {
 function zip_and_clean_Basic {
     cd $debug_directory/
     echo "Zipping up files:"
-    tar zcvf "$(date '+%F'_'%H-%M-%S')_archive.tgz" *
+    tar zcvf "$(date '+%F'_'%H-%M-%S')_Captures_archive.tgz" *
     rm fw_mon.pcap tcpdump-* logs.txt
-    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_archive.tgz" to Check Point support for review"
+    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_Captures_archive.tgz" to Check Point support for review"
 }
 
 ##############################
@@ -249,9 +249,9 @@ function zip_and_clean_Basic {
 function zip_and_clean_WSTLSD {
     cd $debug_directory/
     echo "Zipping up files:"
-    tar zcvf "$(date '+%F'_'%H-%M-%S')_archive.tgz" *
+    tar zcvf "$(date '+%F'_'%H-%M-%S')_WSTLSD_archive.tgz" *
     rm logs.txt wstlsd.elg*
-    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_archive.tgz" to Check Point support for review"
+    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_WSTLSD_archive.tgz" to Check Point support for review"
 
 ############################
 ## Archive & Cleanup PEPD ##
@@ -259,9 +259,9 @@ function zip_and_clean_WSTLSD {
 function zip_and_clean_PEPD {
     cd $debug_directory/
     echo "Zipping up files:"
-    tar zcvf "$(date '+%F'_'%H-%M-%S')_archive.tgz" *
+    tar zcvf "$(date '+%F'_'%H-%M-%S')_PEPD_archive.tgz" *
     rm logs.txt pepd.elg*
-    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_archive.tgz" to Check Point support for review"
+    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_PEPD_archive.tgz" to Check Point support for review"
 }
 
 ###############################
@@ -270,35 +270,35 @@ function zip_and_clean_PEPD {
 function zip_and_clean_IA {
     cd $debug_directory/
     echo "Zipping up files:"
-    tar zcvf "$(date '+%F'_'%H-%M-%S')_archive.tgz" *
+    tar zcvf "$(date '+%F'_'%H-%M-%S')_IA-Full_archive.tgz" *
     rm logs.txt pepd.elg* pdpd.elg* fw_mon.pcap tcpdump-*
-    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_archive.tgz" to Check Point support for review"
+    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')IA-Full_archive.tgz" to Check Point support for review"
 }
 
 ##########################
 ## SFTP Upload & Delete ##
 ##########################
 function SFTP_Upload {
-sftp=""
-printf "Would you like to upload to SFTP (y/n): "
-read sftp
+    sftp=""
+    printf "Would you like to upload to SFTP (y/n): "
+    read sftp
 
-if [[ "$sftp" == "y" ]]; then
-	srnumber=""
-	printf "Please enter the SR#: "
-	read srnumber
-	host="216.228.148.22"
-	cd $debug_directory
+    if [[ "$sftp" == "y" ]]; then
+	   srnumber=""
+	   printf "Please enter the SR#: "
+	   read srnumber
+	   host="216.228.148.22"
+	   cd $debug_directory
 
-	sftp $srnumber@$host <<EOF
-		cd incoming/
-		put archive.tgz
-		bye
+	   sftp $srnumber@$host <<EOF
+	   	   cd incoming/
+		  put archive.tgz
+		  bye
 EOF
-elif [[ "$sftp" == "n" ]]; then
-	exit 1
-rm $debug_directory/*_archive.tgz
-fi
+    elif [[ "$sftp" == "n" ]]; then
+	   exit 1
+    rm $debug_directory/*_archive.tgz
+    fi
 }
 
 #####################

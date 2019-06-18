@@ -40,41 +40,41 @@ function SmartEvent_Off {
     fi
 }
 
-#######################################################################
-## Archive & Cleanup Light Kernel & Light Kernel with Unified Policy ##
-#######################################################################
+#################################
+## Archive & Cleanup SmartEvent##
+#################################
 function zip_and_clean_SE {
     cd $debug_directory/
     echo "Zipping up files:"
-    tar zcvf "$(date '+%F'_'%H-%M-%S')_archive.tgz" *
+    tar zcvf "$(date '+%F'_'%H-%M-%S')_SmartEvent_archive.tgz" *
     rm AllSmartEvent.out.tar
-    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_archive.tgz" to Check Point support for review."
+    echo "Please upload $debug_directory/"$(date '+%F'_'%H-%M-%S')_SmartEvent_archive.tgz" to Check Point support for review."
 }
 
 ##########################
 ## SFTP Upload & Delete ##
 ##########################
 function SFTP_Upload {
-sftp=""
-printf "Would you like to upload to SFTP (y/n): "
-read sftp
+	sftp=""
+	printf "Would you like to upload to SFTP (y/n): "
+	read sftp
 
-if [[ "$sftp" == "y" ]]; then
-	srnumber=""
-	printf "Please enter the SR#: "
-	read srnumber
-	host="216.228.148.22"
-	cd $debug_directory
+	if [[ "$sftp" == "y" ]]; then
+		srnumber=""
+		printf "Please enter the SR#: "
+		read srnumber
+		host="216.228.148.22"
+		cd $debug_directory
 
-	sftp $srnumber@$host <<EOF
-		cd incoming/
-		put archive.tgz
-		bye
+		sftp $srnumber@$host <<EOF
+			cd incoming/
+			put archive.tgz
+			bye
 EOF
-elif [[ "$sftp" == "n" ]]; then
-	exit 1
-rm $debug_directory/*_archive.tgz
-fi
+	elif [[ "$sftp" == "n" ]]; then
+		exit 1
+	rm $debug_directory/*_archive.tgz
+	fi
 }
 
 #####################
